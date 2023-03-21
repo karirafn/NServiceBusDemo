@@ -3,6 +3,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
+using Shared;
+
 Console.Title = Assembly.GetExecutingAssembly().GetName().Name!;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
@@ -15,9 +17,7 @@ builder.UseNServiceBus(context =>
 {
     EndpointConfiguration endpointConfiguration = new(context.Configuration.GetValue<string>("EndpointName"));
 
-    TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-    transport.ConnectionString(context.Configuration.GetConnectionString(nameof(RabbitMQ)));
-    transport.UseConventionalRoutingTopology(QueueType.Quorum);
+    TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.ConfigureRabbitMQ(context.Configuration);
 
     return endpointConfiguration;
 });
