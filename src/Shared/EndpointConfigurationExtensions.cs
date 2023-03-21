@@ -5,7 +5,7 @@ namespace Shared;
 
 public static class EndpointConfigurationExtensions
 {
-    public static TransportExtensions<RabbitMQTransport> ConfigureRabbitMQ(this EndpointConfiguration endpointConfiguration, IConfiguration configuration)
+    public static TransportExtensions<RabbitMQTransport> ConfigureTransport(this EndpointConfiguration endpointConfiguration, IConfiguration configuration)
     {
         TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
         transport.ConnectionString(configuration.GetConnectionString("Transport"));
@@ -21,5 +21,13 @@ public static class EndpointConfigurationExtensions
         persistence.ConnectionBuilder(() => new SqlConnection(configuration.GetConnectionString("Persistence")));
 
         return persistence;
+    }
+
+    public static EndpointConfiguration ConfigureEndpoint(this EndpointConfiguration endpointConfiguration)
+    {
+        endpointConfiguration.EnableInstallers();
+        endpointConfiguration.EnableOpenTelemetry();
+
+        return endpointConfiguration;
     }
 }
