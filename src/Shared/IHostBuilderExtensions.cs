@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -16,20 +17,28 @@ public static class IHostBuilderExtensions
         where T : class => builder
         .ConfigureLogging(LoggingConfiguration)
         .ConfigureAppConfiguration(AppConfiguration<T>)
-        .ConfigureServices(ServiceRegistration)
+        .ConfigureServices(RegisterOpenTelemetry)
         .UseNServiceBus(context => NServiceBusConfiguration(context, routing));
 
     private static void AppConfiguration<T>(IConfigurationBuilder configuration) where T : class => configuration
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
         .AddUserSecrets<T>();
 
-    private static void ServiceRegistration(HostBuilderContext context, IServiceCollection services) => services
-        .AddOpenTelemetry()
-        .WithTracing(builder => builder
-            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(context.Configuration.GetValue<string>("EndpointName")!))
-            .AddSource("NServiceBus.*")
-            .AddAspNetCoreInstrumentation()
-            .AddConsoleExporter());
+    private static void RegisterOpenTelemetry(HostBuilderContext context, IServiceCollection services)
+    {
+        string endpointName = context.Configuration.GetRequiredSection("EndpointName").Value!;
+
+        services.AddOpenTelemetry()
+            .WithTracing(builder => builder
+                .AddSource("NServiceBus.*")
+                .ConfigureResource(resource => resource.AddService(endpointName))
+                .AddAspNetCoreInstrumentation()
+                .AddConsoleExporter())
+            .WithMetrics(builder => builder
+                .ConfigureResource(resource => resource.AddService(endpointName))
+                .AddAspNetCoreInstrumentation()
+                .AddConsoleExporter());
+    }
 
 #pragma warning disable CA1416
     private static void LoggingConfiguration(HostBuilderContext context, ILoggingBuilder logging) => logging
