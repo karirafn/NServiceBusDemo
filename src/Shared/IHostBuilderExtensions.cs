@@ -28,6 +28,7 @@ public static class IHostBuilderExtensions
         .WithTracing(builder => builder
             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(context.Configuration.GetValue<string>("EndpointName")!))
             .AddSource("NServiceBus.*")
+            .AddAspNetCoreInstrumentation()
             .AddConsoleExporter());
 
 #pragma warning disable CA1416
