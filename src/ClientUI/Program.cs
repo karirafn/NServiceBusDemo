@@ -14,13 +14,7 @@ Console.Title = Assembly.GetExecutingAssembly().GetName().Name!;
 
 IHostBuilder builder = Host.CreateDefaultBuilder(args);
 
-builder.ConfigureLogging((context, logging) => logging.ConfigureOpenTelemetryLogging(context.Configuration));
-
-builder.ConfigureAppConfiguration((context, configuration) => configuration
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .AddUserSecrets<Program>());
-
-builder.ConfigureServices((context, services) => services.AddNServiceBusOpenTelemetry(context.Configuration));
+builder.ConfigureHost<Program>();
 
 builder.UseNServiceBus(context =>
 {
