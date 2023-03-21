@@ -22,12 +22,4 @@ public static class EndpointConfigurationExtensions
 
         return persistence;
     }
-
-    public static EndpointConfiguration ConfigureEndpoint(this EndpointConfiguration endpointConfiguration)
-    {
-        endpointConfiguration.EnableInstallers();
-        endpointConfiguration.EnableOpenTelemetry();
-
-        return endpointConfiguration;
-    }
 }

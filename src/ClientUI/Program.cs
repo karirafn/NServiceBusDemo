@@ -18,13 +18,9 @@ builder.ConfigureHost<Program>();
 
 builder.UseNServiceBus(context =>
 {
-    EndpointConfiguration endpointConfiguration = new(context.Configuration.GetValue<string>("EndpointName"));
-    endpointConfiguration.ConfigureEndpoint();
-
+    EndpointConfiguration endpointConfiguration = EndpointConfigurationFactory.Create(context.Configuration);
     TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.ConfigureTransport(context.Configuration);
-
     RoutingSettings<RabbitMQTransport> routing = transport.Routing();
-
     routing.RouteToEndpoint(typeof(PlaceOrder), context.Configuration.GetValue<string>("Routing:SalesEndPointName"));
 
     return endpointConfiguration;

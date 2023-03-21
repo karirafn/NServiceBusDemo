@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 using Shared;
@@ -13,9 +12,7 @@ builder.ConfigureHost<Program>();
 
 builder.UseNServiceBus(context =>
 {
-    EndpointConfiguration endpointConfiguration = new(context.Configuration.GetValue<string>("EndpointName"));
-    endpointConfiguration.ConfigureEndpoint();
-
+    EndpointConfiguration endpointConfiguration = EndpointConfigurationFactory.Create(context.Configuration);
     TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.ConfigureTransport(context.Configuration);
 
     return endpointConfiguration;
