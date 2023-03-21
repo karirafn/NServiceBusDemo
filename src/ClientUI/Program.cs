@@ -12,22 +12,9 @@ using Shared;
 
 Console.Title = Assembly.GetExecutingAssembly().GetName().Name!;
 
-IHostBuilder builder = Host.CreateDefaultBuilder(args);
-
-builder.ConfigureHost<Program>();
-
-builder.UseNServiceBus(context =>
-{
-    EndpointConfiguration endpointConfiguration = EndpointConfigurationFactory.Create(context.Configuration);
-    TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.ConfigureTransport(context.Configuration);
-    RoutingSettings<RabbitMQTransport> routing = transport.Routing();
-    routing.RouteToEndpoint(typeof(PlaceOrder), context.Configuration.GetValue<string>("Routing:SalesEndPointName"));
-
-    return endpointConfiguration;
-});
-
-builder.ConfigureServices(services => services.AddHostedService<Worker>());
-
-IHost app = builder.Build();
-
-await app.RunAsync();
+await Host.CreateDefaultBuilder(args)
+    .ConfigureEndpoint<Program>((context, routing) => routing
+        .RouteToEndpoint(typeof(PlaceOrder), context.Configuration.GetValue<string>("Routing:SalesEndPointName")))
+    .ConfigureServices(services => services.AddHostedService<Worker>())
+    .Build()
+    .RunAsync();

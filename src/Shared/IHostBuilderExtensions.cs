@@ -1,21 +1,65 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+using OpenTelemetry.Logs;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 namespace Shared;
 
 public static class IHostBuilderExtensions
 {
-    public static IHostBuilder ConfigureHost<T>(this IHostBuilder builder)
-        where T : class
+    public static IHostBuilder ConfigureEndpoint<T>(this IHostBuilder builder, Action<HostBuilderContext, RoutingSettings<RabbitMQTransport>>? routing = null)
+        where T : class => builder
+        .ConfigureLogging(LoggingConfiguration)
+        .ConfigureAppConfiguration(AppConfiguration<T>)
+        .ConfigureServices(ServiceRegistration)
+        .UseNServiceBus(context => NServiceBusConfiguration(context, routing));
+
+    private static void AppConfiguration<T>(IConfigurationBuilder configuration) where T : class => configuration
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddUserSecrets<T>();
+
+    private static void ServiceRegistration(HostBuilderContext context, IServiceCollection services) => services
+        .AddOpenTelemetry()
+        .WithTracing(builder => builder
+            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(context.Configuration.GetValue<string>("EndpointName")!))
+            .AddSource("NServiceBus.*")
+            .AddConsoleExporter());
+
+#pragma warning disable CA1416
+    private static void LoggingConfiguration(HostBuilderContext context, ILoggingBuilder logging) => logging
+        .AddConfiguration(context.Configuration.GetSection("Logging"))
+        .AddOpenTelemetry(loggingOptions =>
+        {
+            loggingOptions.IncludeFormattedMessage = true;
+            loggingOptions.IncludeScopes = true;
+            loggingOptions.ParseStateValues = true;
+            loggingOptions.AddConsoleExporter();
+        })
+        .AddEventLog() // Only works on Windows
+        .AddConsole();
+#pragma warning restore CA1416
+
+    private static EndpointConfiguration NServiceBusConfiguration(HostBuilderContext context, Action<HostBuilderContext, RoutingSettings<RabbitMQTransport>>? routing)
     {
-        builder.ConfigureLogging((context, logging) => logging.ConfigureOpenTelemetryLogging(context.Configuration));
+        EndpointConfiguration endpointConfiguration = new(context.Configuration.GetValue<string>("EndpointName"));
+        endpointConfiguration.EnableInstallers();
+        endpointConfiguration.EnableOpenTelemetry();
 
-        builder.ConfigureAppConfiguration((context, configuration) => configuration
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddUserSecrets<T>());
+        TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
+        transport.ConnectionString(context.Configuration.GetConnectionString("Transport"));
+        transport.UseConventionalRoutingTopology(QueueType.Quorum);
 
-        builder.ConfigureServices((context, services) => services.AddNServiceBusOpenTelemetry(context.Configuration));
+        PersistenceExtensions<SqlPersistence> persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+        persistence.SqlDialect<SqlDialect.MsSqlServer>();
+        persistence.ConnectionBuilder(() => new SqlConnection(context.Configuration.GetConnectionString("Persistence")));
 
-        return builder;
+        routing?.Invoke(context, transport.Routing());
+
+        return endpointConfiguration;
     }
 }
