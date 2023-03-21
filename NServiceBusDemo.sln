@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.Messages", "src\Bil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shipping", "src\Shipping\Shipping.csproj", "{37BA5B8A-78A9-4D52-9394-829C8C78489F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "src\Shared\Shared.csproj", "{8A4369F2-2237-41BA-856F-A8B46A458B34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,10 @@ Global
 		{37BA5B8A-78A9-4D52-9394-829C8C78489F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37BA5B8A-78A9-4D52-9394-829C8C78489F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37BA5B8A-78A9-4D52-9394-829C8C78489F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A4369F2-2237-41BA-856F-A8B46A458B34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A4369F2-2237-41BA-856F-A8B46A458B34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A4369F2-2237-41BA-856F-A8B46A458B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A4369F2-2237-41BA-856F-A8B46A458B34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{9B6BD3BA-BD22-4A38-B456-ACE7D3F9E826} = {3510B9EC-70ED-4216-8CDA-742D1E667923}
 		{8756782E-0F86-43A3-9C48-2F1F868CE759} = {3510B9EC-70ED-4216-8CDA-742D1E667923}
 		{37BA5B8A-78A9-4D52-9394-829C8C78489F} = {3510B9EC-70ED-4216-8CDA-742D1E667923}
+		{8A4369F2-2237-41BA-856F-A8B46A458B34} = {3510B9EC-70ED-4216-8CDA-742D1E667923}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7370F3FC-4A0C-477D-8E40-0AD216455D75}

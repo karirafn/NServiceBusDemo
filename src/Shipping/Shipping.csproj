@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Billing.Messages\Billing.Messages.csproj" />
     <ProjectReference Include="..\Sales.Messages\Sales.Messages.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
