@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace Shared;
 
@@ -11,5 +12,14 @@ public static class EndpointConfigurationExtensions
         transport.UseConventionalRoutingTopology(QueueType.Quorum);
 
         return transport;
+    }
+
+    public static PersistenceExtensions<SqlPersistence> ConfigurePersistence(this EndpointConfiguration endpointConfiguration, IConfiguration configuration)
+    {
+        PersistenceExtensions<SqlPersistence> persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
+        persistence.SqlDialect<SqlDialect.MsSqlServer>();
+        persistence.ConnectionBuilder(() => new SqlConnection(configuration.GetConnectionString("BusDb")));
+
+        return persistence;
     }
 }

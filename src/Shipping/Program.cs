@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -20,10 +19,7 @@ builder.UseNServiceBus(context =>
     endpointConfiguration.EnableInstallers();
 
     TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.ConfigureRabbitMQ(context.Configuration);
-
-    PersistenceExtensions<SqlPersistence> persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
-    persistence.SqlDialect<SqlDialect.MsSqlServer>();
-    persistence.ConnectionBuilder(() => new SqlConnection(context.Configuration.GetConnectionString("BusDb")));
+    PersistenceExtensions<SqlPersistence> persistence = endpointConfiguration.ConfigurePersistence(context.Configuration);
 
     return endpointConfiguration;
 });
