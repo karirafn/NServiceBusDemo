@@ -29,11 +29,11 @@ public static class IHostBuilderExtensions
         string endpointName = context.Configuration.GetRequiredSection("EndpointName").Value!;
 
         services.AddOpenTelemetry()
-            .WithTracing(builder => builder
+            .WithTracing(traceProviderBuilder => traceProviderBuilder
                 .AddSource("NServiceBus.*")
                 .ConfigureResource(resource => resource.AddService(endpointName))
                 .AddConsoleExporter())
-            .WithMetrics(builder => builder
+            .WithMetrics(meterProviderBuilder => meterProviderBuilder
                 .ConfigureResource(resource => resource.AddService(endpointName))
                 .AddConsoleExporter());
     }
