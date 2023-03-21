@@ -8,7 +8,7 @@ public static class EndpointConfigurationExtensions
     public static TransportExtensions<RabbitMQTransport> ConfigureRabbitMQ(this EndpointConfiguration endpointConfiguration, IConfiguration configuration)
     {
         TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-        transport.ConnectionString(configuration.GetConnectionString(nameof(RabbitMQ)));
+        transport.ConnectionString(configuration.GetConnectionString("Transport"));
         transport.UseConventionalRoutingTopology(QueueType.Quorum);
 
         return transport;
@@ -18,7 +18,7 @@ public static class EndpointConfigurationExtensions
     {
         PersistenceExtensions<SqlPersistence> persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
         persistence.SqlDialect<SqlDialect.MsSqlServer>();
-        persistence.ConnectionBuilder(() => new SqlConnection(configuration.GetConnectionString("BusDb")));
+        persistence.ConnectionBuilder(() => new SqlConnection(configuration.GetConnectionString("Persistence")));
 
         return persistence;
     }
