@@ -32,11 +32,9 @@ public static class IHostBuilderExtensions
             .WithTracing(builder => builder
                 .AddSource("NServiceBus.*")
                 .ConfigureResource(resource => resource.AddService(endpointName))
-                .AddAspNetCoreInstrumentation()
                 .AddConsoleExporter())
             .WithMetrics(builder => builder
                 .ConfigureResource(resource => resource.AddService(endpointName))
-                .AddAspNetCoreInstrumentation()
                 .AddConsoleExporter());
     }
 
