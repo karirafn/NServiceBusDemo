@@ -33,6 +33,7 @@ public static class IHostBuilderExtensions
                 .AddSource("NServiceBus.*")
                 .ConfigureResource(resource => resource.AddService(endpointName))
                 .AddProcessor(new NetHostProcessor())
+                .AddJaegerExporter()
                 .AddConsoleExporter())
             .WithMetrics(meterProviderBuilder => meterProviderBuilder
                 .ConfigureResource(resource => resource.AddService(endpointName))
