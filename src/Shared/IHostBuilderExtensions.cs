@@ -9,6 +9,8 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
+using Serilog;
+
 namespace Shared;
 
 public static class IHostBuilderExtensions
@@ -18,7 +20,8 @@ public static class IHostBuilderExtensions
         .ConfigureLogging(LoggingConfiguration)
         .ConfigureAppConfiguration(AppConfiguration<T>)
         .ConfigureServices(RegisterOpenTelemetry)
-        .UseNServiceBus(context => NServiceBusConfiguration(context, routing));
+        .UseNServiceBus(context => NServiceBusConfiguration(context, routing))
+        .UseSerilog((context, services, logConfiguration) => logConfiguration.ReadFrom.Configuration(context.Configuration));
 
     private static void AppConfiguration<T>(IConfigurationBuilder configuration) where T : class => configuration
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
