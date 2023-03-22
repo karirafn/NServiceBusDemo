@@ -3,7 +3,7 @@
 ## Getting started
 
 1. Clone repository.
-1. Get the following services up and running, preferably using docker.
+1. Get the following services up and running.
     - [RabbitMQ](https://www.rabbitmq.com/).
     - [Jaeger](https://www.jaegertracing.io/).
     - [SQL server](https://www.microsoft.com/en-us/sql-server).
