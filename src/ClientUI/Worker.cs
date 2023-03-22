@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-
-using NServiceBus.Logging;
+using Microsoft.Extensions.Logging;
 
 using Sales.Messages;
 
@@ -8,11 +7,12 @@ namespace ClientUI;
 
 internal class Worker : BackgroundService
 {
+    private readonly ILogger<Worker> _logger;
     private readonly IMessageSession _messageSession;
-    private static readonly ILog Log = LogManager.GetLogger<Worker>();
 
-    public Worker(IMessageSession messageSession)
+    public Worker(ILogger<Worker> logger, IMessageSession messageSession)
     {
+        _logger = logger;
         _messageSession = messageSession;
     }
 
@@ -20,7 +20,7 @@ internal class Worker : BackgroundService
     {
         while (true)
         {
-            Log.Info("Press 'P' to place an order, or 'Q' to quit");
+            _logger.LogInformation("Press 'P' to place an order, or 'Q' to quit");
             ConsoleKeyInfo key = Console.ReadKey();
             Console.WriteLine();
 
@@ -29,7 +29,7 @@ internal class Worker : BackgroundService
                 case ConsoleKey.P:
                     PlaceOrder command = new(Guid.NewGuid().ToString());
 
-                    Log.Info($"Sending {nameof(PlaceOrder)} command with {nameof(PlaceOrder.OrderId)}: {command.OrderId}");
+                    _logger.LogInformation("Sending {command} command with order id: {id}", nameof(PlaceOrder), command.OrderId);
                     await _messageSession.Send(command, cancellationToken: stoppingToken)
                         .ConfigureAwait(false);
 
@@ -39,7 +39,7 @@ internal class Worker : BackgroundService
                     return;
 
                 default:
-                    Log.Info("Unknown input. Please try again.");
+                    _logger.LogInformation("Unknown input. Please try again.");
                     break;
             }
         }

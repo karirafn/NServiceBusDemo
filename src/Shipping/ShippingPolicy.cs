@@ -1,6 +1,6 @@
 ﻿using Billing.Messages;
 
-using NServiceBus.Logging;
+using Microsoft.Extensions.Logging;
 
 using Sales.Messages;
 
@@ -12,18 +12,23 @@ public class ShippingPolicy : Saga<ShippingPolicyData>,
     IAmStartedByMessages<OrderPlaced>,
     IAmStartedByMessages<OrderBilled>
 {
-    private static readonly ILog Log = LogManager.GetLogger<ShippingPolicy>();
+    private readonly ILogger<ShippingPolicy> _logger;
+
+    public ShippingPolicy(ILogger<ShippingPolicy> logger)
+    {
+        _logger = logger;
+    }
 
     public Task Handle(OrderPlaced message, IMessageHandlerContext context)
     {
-        Log.Info($"Received {nameof(OrderPlaced)} with {nameof(OrderPlaced.OrderId)}: {message.OrderId}");
+        _logger.LogInformation("Received {event} event with order id: {orderId}", nameof(OrderPlaced), message.OrderId);
         Data.IsOrderPlaced = true;
         return ProcessOrder(context);
     }
 
     public Task Handle(OrderBilled message, IMessageHandlerContext context)
     {
-        Log.Info($"Received {nameof(OrderBilled)} with {nameof(OrderBilled.OrderId)}: {message.OrderId}");
+        _logger.LogInformation("Received {event} event with order id: {orderId}", nameof(OrderBilled), message.OrderId);
         Data.IsOrderBilled = true;
         return ProcessOrder(context);
     }

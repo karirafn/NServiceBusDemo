@@ -1,4 +1,4 @@
-﻿using NServiceBus.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 using Sales.Messages;
 
@@ -6,11 +6,16 @@ namespace Sales;
 
 internal class PlaceOrderHandler : IHandleMessages<PlaceOrder>
 {
-    private static readonly ILog Log = LogManager.GetLogger<PlaceOrderHandler>();
+    private readonly ILogger<PlaceOrderHandler> _logger;
+
+    public PlaceOrderHandler(ILogger<PlaceOrderHandler> logger)
+    {
+        _logger = logger;
+    }
 
     public Task Handle(PlaceOrder message, IMessageHandlerContext context)
     {
-        Log.Info($"Received {nameof(PlaceOrder)} with {nameof(PlaceOrder.OrderId)}: {message.OrderId}");
+        _logger.LogInformation("Received {command} command with order id: {orderId}", nameof(PlaceOrder), message.OrderId);
 
         OrderPlaced orderPlaced = new(message.OrderId);
 

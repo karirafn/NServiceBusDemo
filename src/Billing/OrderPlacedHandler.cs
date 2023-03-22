@@ -1,6 +1,6 @@
 ﻿using Billing.Messages;
 
-using NServiceBus.Logging;
+using Microsoft.Extensions.Logging;
 
 using Sales.Messages;
 
@@ -8,11 +8,16 @@ namespace Billing;
 
 internal class OrderPlacedHandler : IHandleMessages<OrderPlaced>
 {
-    private static readonly ILog Log = LogManager.GetLogger<OrderPlacedHandler>();
+    private readonly ILogger<OrderPlacedHandler> _logger;
+
+    public OrderPlacedHandler(ILogger<OrderPlacedHandler> logger)
+    {
+        _logger = logger;
+    }
 
     public Task Handle(OrderPlaced message, IMessageHandlerContext context)
     {
-        Log.Info($"Received {nameof(OrderPlaced)} with {nameof(OrderPlaced.OrderId)}: {message.OrderId}");
+        _logger.LogInformation("Received {command} command with order id: {orderId}", nameof(OrderPlaced), message.OrderId);
 
         OrderBilled orderBilled = new(message.OrderId);
 
