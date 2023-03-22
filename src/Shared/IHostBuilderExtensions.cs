@@ -15,6 +15,11 @@ namespace Shared;
 
 public static class IHostBuilderExtensions
 {
+    public const string EndpointName = nameof(EndpointName);
+    public const string Persistence = nameof(Persistence);
+    public const string Transport = nameof(Transport);
+    public const string Logging = nameof(Logging);
+
     public static IHostBuilder ConfigureEndpoint<T>(this IHostBuilder builder, Action<HostBuilderContext, RoutingSettings<RabbitMQTransport>>? routing = null)
         where T : class => builder
         .ConfigureLogging(LoggingConfiguration)
@@ -29,7 +34,7 @@ public static class IHostBuilderExtensions
 
     private static void RegisterOpenTelemetry(HostBuilderContext context, IServiceCollection services)
     {
-        string endpointName = context.Configuration.GetRequiredSection("EndpointName").Value!;
+        string endpointName = context.Configuration.GetRequiredSection(EndpointName).Value!;
 
         services.AddOpenTelemetry()
             .WithTracing(traceProviderBuilder => traceProviderBuilder
@@ -45,7 +50,7 @@ public static class IHostBuilderExtensions
 
 #pragma warning disable CA1416
     private static void LoggingConfiguration(HostBuilderContext context, ILoggingBuilder logging) => logging
-        .AddConfiguration(context.Configuration.GetSection("Logging"))
+        .AddConfiguration(context.Configuration.GetSection(Logging))
         .AddOpenTelemetry(loggingOptions =>
         {
             loggingOptions.IncludeFormattedMessage = true;
@@ -59,17 +64,17 @@ public static class IHostBuilderExtensions
 
     private static EndpointConfiguration NServiceBusConfiguration(HostBuilderContext context, Action<HostBuilderContext, RoutingSettings<RabbitMQTransport>>? routing)
     {
-        EndpointConfiguration endpointConfiguration = new(context.Configuration.GetValue<string>("EndpointName"));
+        EndpointConfiguration endpointConfiguration = new(context.Configuration.GetValue<string>(EndpointName));
         endpointConfiguration.EnableInstallers();
         endpointConfiguration.EnableOpenTelemetry();
 
         TransportExtensions<RabbitMQTransport> transport = endpointConfiguration.UseTransport<RabbitMQTransport>();
-        transport.ConnectionString(context.Configuration.GetConnectionString("Transport"));
+        transport.ConnectionString(context.Configuration.GetConnectionString(Transport));
         transport.UseConventionalRoutingTopology(QueueType.Quorum);
 
         PersistenceExtensions<SqlPersistence> persistence = endpointConfiguration.UsePersistence<SqlPersistence>();
         persistence.SqlDialect<SqlDialect.MsSqlServer>();
-        persistence.ConnectionBuilder(() => new SqlConnection(context.Configuration.GetConnectionString("Persistence")));
+        persistence.ConnectionBuilder(() => new SqlConnection(context.Configuration.GetConnectionString(Persistence)));
 
         routing?.Invoke(context, transport.Routing());
 
