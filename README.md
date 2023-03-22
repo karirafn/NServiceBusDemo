@@ -6,6 +6,7 @@
 1. Get [RabbitMQ](https://www.rabbitmq.com/).
 1. Get [Jaeger](https://www.jaegertracing.io/).
 1. Get a [SQL server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads).
+1. Create an `NServiceBusDemo` database on your SQL server.
 1. Add the following to user secrets for `Billing`, `ClientUI`, `Sales` and `Shipping`
 
     ```json
