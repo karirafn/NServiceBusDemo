@@ -17,10 +17,11 @@ internal class OrderPlacedHandler : IHandleMessages<OrderPlaced>
 
     public Task Handle(OrderPlaced message, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Received {command} command with order id: {orderId}", nameof(OrderPlaced), message.OrderId);
+        _logger.LogInformation("Received {command} command for order {orderId}", nameof(OrderPlaced), message.OrderId);
 
         OrderBilled orderBilled = new(message.OrderId);
 
+        _logger.LogInformation("Sending {event} event for order {orderId}", nameof(OrderBilled), orderBilled.OrderId);
         return context.Publish(orderBilled);
     }
 }

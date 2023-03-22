@@ -20,7 +20,7 @@ internal class Worker : BackgroundService
     {
         while (true)
         {
-            _logger.LogInformation("Press 'P' to place an order, or 'Q' to quit");
+            _logger.LogInformation("Press {P} to place an order, or {Q} to quit", ConsoleKey.P, ConsoleKey.Q);
             ConsoleKeyInfo key = Console.ReadKey();
             Console.WriteLine();
 
@@ -29,7 +29,7 @@ internal class Worker : BackgroundService
                 case ConsoleKey.P:
                     PlaceOrder command = new(Guid.NewGuid().ToString());
 
-                    _logger.LogInformation("Sending {command} command with order id: {id}", nameof(PlaceOrder), command.OrderId);
+                    _logger.LogInformation("Sending {command} command for order {id}", nameof(PlaceOrder), command.OrderId);
                     await _messageSession.Send(command, cancellationToken: stoppingToken)
                         .ConfigureAwait(false);
 

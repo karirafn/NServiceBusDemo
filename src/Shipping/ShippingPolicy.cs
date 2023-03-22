@@ -21,14 +21,14 @@ public class ShippingPolicy : Saga<ShippingPolicyData>,
 
     public Task Handle(OrderPlaced message, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Received {event} event with order id: {orderId}", nameof(OrderPlaced), message.OrderId);
+        _logger.LogInformation("Received {event} event for order {orderId}", nameof(OrderPlaced), message.OrderId);
         Data.IsOrderPlaced = true;
         return ProcessOrder(context);
     }
 
     public Task Handle(OrderBilled message, IMessageHandlerContext context)
     {
-        _logger.LogInformation("Received {event} event with order id: {orderId}", nameof(OrderBilled), message.OrderId);
+        _logger.LogInformation("Received {event} event for order {orderId}", nameof(OrderBilled), message.OrderId);
         Data.IsOrderBilled = true;
         return ProcessOrder(context);
     }
@@ -54,7 +54,11 @@ public class ShippingPolicy : Saga<ShippingPolicyData>,
             return;
         }
 
-        await context.SendLocal(new ShipOrder(Data.OrderId));
+        ShipOrder shipOrder = new(Data.OrderId);
+
+        _logger.LogInformation("Sending {command} command for order {id}", nameof(ShipOrder), shipOrder.OrderId);
+        await context.SendLocal(shipOrder);
+
         MarkAsComplete();
     }
 }
