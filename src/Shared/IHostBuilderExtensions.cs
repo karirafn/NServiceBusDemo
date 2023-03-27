@@ -34,32 +34,38 @@ public static class IHostBuilderExtensions
 
     private static void RegisterOpenTelemetry(HostBuilderContext context, IServiceCollection services)
     {
-        string endpointName = context.Configuration.GetRequiredSection(EndpointName).Value!;
+        ResourceBuilder resourceBuilder = CreateResourceBuilder(context);
 
         services.AddOpenTelemetry()
             .WithTracing(traceProviderBuilder => traceProviderBuilder
                 .AddSource("NServiceBus.*")
-                .ConfigureResource(resource => resource.AddService(endpointName))
+                .SetResourceBuilder(resourceBuilder)
                 .AddProcessor(new NetHostProcessor())
-                .AddJaegerExporter()
+                .AddOtlpExporter()
                 .AddConsoleExporter())
             .WithMetrics(meterProviderBuilder => meterProviderBuilder
-                .ConfigureResource(resource => resource.AddService(endpointName))
+                .SetResourceBuilder(resourceBuilder)
+                .AddOtlpExporter()
                 .AddConsoleExporter());
     }
 
 #pragma warning disable CA1416
-    private static void LoggingConfiguration(HostBuilderContext context, ILoggingBuilder logging) => logging
-        .AddConfiguration(context.Configuration.GetSection(Logging))
-        .AddOpenTelemetry(loggingOptions =>
-        {
-            loggingOptions.IncludeFormattedMessage = true;
-            loggingOptions.IncludeScopes = true;
-            loggingOptions.ParseStateValues = true;
-            loggingOptions.AddConsoleExporter();
-        })
-        .AddEventLog() // Only works on Windows
-        .AddConsole();
+    private static void LoggingConfiguration(HostBuilderContext context, ILoggingBuilder logging)
+    {
+        ResourceBuilder resourceBuilder = CreateResourceBuilder(context);
+
+        logging.AddConfiguration(context.Configuration.GetSection(Logging))
+            .AddOpenTelemetry(options =>
+            {
+                options.SetResourceBuilder(resourceBuilder);
+                options.IncludeFormattedMessage = true;
+                options.IncludeScopes = true;
+                options.ParseStateValues = true;
+                options.AddConsoleExporter();
+            })
+            .AddEventLog() // Only works on Windows
+            .AddConsole();
+    }
 #pragma warning restore CA1416
 
     private static EndpointConfiguration NServiceBusConfiguration(HostBuilderContext context, Action<HostBuilderContext, RoutingSettings<RabbitMQTransport>>? routing)
@@ -79,5 +85,13 @@ public static class IHostBuilderExtensions
         routing?.Invoke(context, transport.Routing());
 
         return endpointConfiguration;
+    }
+
+    private static ResourceBuilder CreateResourceBuilder(HostBuilderContext context)
+    {
+        string endpointName = context.Configuration.GetRequiredSection(EndpointName).Value!;
+        ResourceBuilder resourceBuilder = ResourceBuilder.CreateDefault().AddService(endpointName);
+
+        return resourceBuilder;
     }
 }
