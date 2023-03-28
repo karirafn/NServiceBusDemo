@@ -14,10 +14,14 @@ extensions:
 
 exporters:
   logging:
+
   jaeger:
     endpoint: jaeger:14250
     tls:
       insecure: true
+
+  prometheus:
+    endpoint: otel-collector:8889
 
 service:
   extensions: [health_check, pprof, zpages]
@@ -25,11 +29,11 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, jaeger]
+      exporters: [jaeger]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [prometheus]
     logs:
       receivers: [otlp]
       processors: [batch]

@@ -18,17 +18,30 @@ services:
 
   jaeger:
     image: jaegertracing/all-in-one
+    networks:
+      - observability
     ports:
       - 16686:16686
       - 14250
     environment:
       - COLLECTOR_OTLP_ENABLED=true
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - observability
+    ports:
+      - 9090:9090
+
   otel-collector:
     image: otel/opentelemetry-collector
     command: [--config=/etc/otel-collector.yaml]
     volumes:
       - ./otel-collector.yaml:/etc/otel-collector.yaml
+    networks:
+      - observability
     ports:
       - 1888:1888 # pprof extension
       - 8888:8888 # Prometheus metrics exposed by the collector
@@ -41,3 +54,4 @@ services:
 networks:
   rabbitmq:
     driver: bridge
+  observability:

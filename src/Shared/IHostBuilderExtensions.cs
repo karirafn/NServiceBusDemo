@@ -38,13 +38,14 @@ public static class IHostBuilderExtensions
 
         services.AddOpenTelemetry()
             .WithTracing(traceProviderBuilder => traceProviderBuilder
-                .AddSource("NServiceBus.*")
+                .AddSource("NServiceBus.Core")
                 .SetResourceBuilder(resourceBuilder)
                 .AddProcessor(new NetHostProcessor())
                 .AddOtlpExporter()
                 .AddConsoleExporter())
             .WithMetrics(meterProviderBuilder => meterProviderBuilder
                 .SetResourceBuilder(resourceBuilder)
+                .AddMeter("NServiceBus.Core")
                 .AddOtlpExporter()
                 .AddConsoleExporter());
     }
