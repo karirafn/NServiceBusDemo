@@ -2,6 +2,14 @@
 
 ## Getting started
 
+1. Create the following files:
+
+    ```text
+    C:\temp\traces.json
+    C:\temp\metrics.json
+    C:\temp\logs.json
+    ```
+
 1. Start docker containers.
 
     ```bash
