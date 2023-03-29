@@ -26,7 +26,7 @@ public static class IHostBuilderExtensions
         .ConfigureAppConfiguration(AppConfiguration<T>)
         .ConfigureServices(RegisterOpenTelemetry)
         .UseNServiceBus(context => NServiceBusConfiguration(context, routing))
-        .UseSerilog((context, services, logConfiguration) => logConfiguration.ReadFrom.Configuration(context.Configuration));
+        .UseSerilog((context, services, loggerConfiguration) => SerilogConfiguration(loggerConfiguration, context));
 
     private static void AppConfiguration<T>(IConfigurationBuilder configuration) where T : class => configuration
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -87,6 +87,11 @@ public static class IHostBuilderExtensions
 
         return endpointConfiguration;
     }
+
+    public static LoggerConfiguration SerilogConfiguration(LoggerConfiguration loggerConfiguration, HostBuilderContext context) => loggerConfiguration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.WithTraceIdAndSpanId()
+        .WriteTo.OpenTelemetry();
 
     private static ResourceBuilder CreateResourceBuilder(HostBuilderContext context)
     {
