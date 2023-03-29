@@ -48,10 +48,13 @@ services:
       - monitoring
 
   otel-collector:
-    image: otel/opentelemetry-collector
+    image: otel/opentelemetry-collector-contrib
     command: [--config=/etc/otel-collector.yaml]
     volumes:
       - ./otel-collector.yaml:/etc/otel-collector.yaml
+      - C:\temp\otel\traces.json:/traces.json
+      - C:\temp\otel\metrics.json:/metrics.json
+      - C:\temp\otel\logs.json:/logs.json
     networks:
       - monitoring
     ports:

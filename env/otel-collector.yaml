@@ -7,11 +7,6 @@ receivers:
 processors:
   batch:
 
-extensions:
-  health_check:
-  pprof:
-  zpages:
-
 exporters:
   logging:
 
@@ -23,18 +18,29 @@ exporters:
   prometheus:
     endpoint: otel-collector:8889
 
+  file/traces:
+    path: ./traces.json
+    rotation:
+
+  file/metrics:
+    path: ./metrics.json
+    rotation:
+
+  file/logs:
+    path: ./logs.json
+    rotation:
+
 service:
-  extensions: [health_check, pprof, zpages]
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [jaeger]
+      exporters: [jaeger, file/traces]
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [prometheus, file/metrics]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [logging, file/logs]
