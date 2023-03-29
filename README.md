@@ -2,12 +2,10 @@
 
 ## Getting started
 
-1. Create the following files:
+1. Run the following PowerShell command:
 
-    ```text
-    C:\temp\traces.json
-    C:\temp\metrics.json
-    C:\temp\logs.json
+    ```pwsh
+    ('traces', 'metrics', 'logs') | Foreach-Object {New-Item "C:\temp\otel\$_.json"}
     ```
 
 1. Start docker containers.
