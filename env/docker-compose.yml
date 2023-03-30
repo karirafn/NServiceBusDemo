@@ -21,17 +21,14 @@ services:
       - rabbitmq
 
   jaeger:
-    image: jaegertracing/all-in-one
+    image: jaegertracing/all-in-one:latest
     networks:
       - monitoring
     ports:
       - 16686:16686
-      - 14250
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:latest
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - ./nservicebus.rules.txt:/etc/prometheus/nservicebus.rules.txt
@@ -41,23 +38,18 @@ services:
       - 9090:9090
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib
-    command: [--config=/etc/otel-collector.yaml]
+    image: otel/opentelemetry-collector-contrib:latest
     volumes:
       - ./otel-collector.yaml:/etc/otel-collector.yaml
       - C:\temp\otel\traces.json:/traces.json
       - C:\temp\otel\metrics.json:/metrics.json
       - C:\temp\otel\logs.json:/logs.json
+    command: --config /etc/otel-collector.yaml
     networks:
       - monitoring
     ports:
-      - 1888:1888 # pprof extension
-      - 8888:8888 # Prometheus metrics exposed by the collector
-      - 8889:8889 # Prometheus exporter metrics
-      - 13133:13133 # health_check extension
-      - 4317:4317 # OTLP gRPC receiver
-      - 4318:4318 # OTLP http receiver
-      - 55679:55679 # zpages extension
+      - 8889:8889
+      - 4317:4317
 
 networks:
   rabbitmq:
